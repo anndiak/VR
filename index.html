@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PA1 - Cornucopia</title>
+    <script src="./Utils/trackball-rotator.js"></script>
+    <script src="./Utils/m4.js"></script>
+    <script src="./shader.gpu"></script>
+    <script src="./main.js"></script>
+    <script src="./StereoCamera.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body onload="init()">
+    <div class="container">
+        <div class="controls">
+            <h2>A Cornucopia with "Trackball" Mouse Rotation</h2>
+            <p id="message">Drag your mouse on the cornucopia to rotate it.<br>(On a touch screen, you can use your finger.)</p>
+            <div class="input">
+                <label for="eyes_separation">Eyes Separation</label>
+                <input id="eyes_separation" type="range" value="0.2" min="0" max="0.5" step="0.05">
+                <span class="value" id="eyes_separation_value">0.2</span>
+            </div>
+            <div class="input">
+                <label for="field_of_view">Field of View</label>
+                <input id="field_of_view" type="range" value="0.7" min="0" max="2" step="0.05">
+                <span class="value" id="field_of_view_value">0.7</span>
+            </div>
+            <div class="input">
+                <label for="near_clipping_distance">Near Clipping Distance</label>
+                <input id="near_clipping_distance" type="range" value="-10" min="-20" max="0" step="1">
+                <span class="value" id="near_clipping_distance_value">5</span>
+            </div>
+            <div class="input">
+                <label for="convergence_distance">Convergence Distance</label>
+                <input id="convergence_distance" type="range" value="4" min="1" max="5" step="0.25">
+                <span class="value" id="convergence_distance_value">4</span>
+            </div>
+        </div>
+        <div id="canvas-holder">
+            <canvas width="600" height="600" id="webglcanvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', function () {
+                const valueSpan = document.getElementById(`${this.id}_value`);
+                valueSpan.textContent = this.value;
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+body {
+    background-color: #f4f4f4;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+}
+
+.controls {
+    width: 30%;
+    margin-right: 20px;
+}
+
+.controls h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.controls #message {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.value {
+    font-size: 0.875rem;
+    color: #888;
+}
+
+#canvas-holder {
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #c00;
+    border-radius: 10px;
+}
