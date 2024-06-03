@@ -5,6 +5,9 @@ let surface;                    // A surface model
 let shProgram;                  // A shader program
 let spaceball;                  // A SimpleRotator object that lets the user rotate the view by mouse
 let stereoCamera;               // A stereo camera object for handling stereo rendering
+let texture;                    // A texture on the top of the surface
+let background, texture_b;      // A background model and its associated texture
+let video, track;               // A video element for webcam input and its associated track
 
 function deg2rad(angle) {
     return angle * Math.PI / 180;
@@ -96,7 +99,15 @@ function draw() {
        combined transformation matrix, and send that to the shader program. */
     let modelViewProjection = m4.multiply(projection, matAccum1);
 
-    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection);
+    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, m4.identity());
+
+    //Binding the texture
+    applyBackgroundTexture();
+
+    background.Draw()
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.clear(gl.DEPTH_BUFFER_BIT)
 
     stereoCamera.ApplyLeftFrustum();
 
@@ -119,6 +130,11 @@ function draw() {
     surface.Draw();
 
     gl.colorMask(true, true, true, true);
+}
+
+function applyBackgroundTexture(){
+    gl.bindTexture(gl.TEXTURE_2D, texture_b);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
 }
 
 function CreateSurfaceData() {
@@ -230,7 +246,7 @@ function CreateCornucopiaSurface(r = 0.05, openingAngle = Math.PI / 2, latStep =
     return vertexList;
 }
 
-function cornucopiaSurfacePoint(r, u, v, openingAngle) {
+function CornucopiaSurfacePoint(r, u, v, openingAngle) {
     let x = r * Math.sin(u) * Math.cos(v) * Math.cos(v);
     let y = r * Math.sin(u) * Math.sin(v) * Math.cos(v);
     let z = r * Math.cos(u) + r * Math.sin(u) * Math.sin(v) * Math.sin(openingAngle);
@@ -254,6 +270,9 @@ function initGL() {
 
     surface = new Model('Surface');
     surface.BufferData(CreateSurfaceData(), CreateSurfaceTextureData());
+
+    background = new Model('WebCam');
+    background.BufferData([1, 1, 0, -1, -1, 0, -1, 1, 0, -1, -1, 0, 1, 1, 0, 1, -1, 0], [0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1]);
 
     stereoCamera = new StereoCamera(1, 0.5, 1, 0.8, -10, 50);
 
@@ -312,6 +331,7 @@ function init() {
     }
     try {
         initGL();  // initialize the WebGL graphics context
+        webCamVideo();
     }
     catch (e) {
         document.getElementById("canvas-holder").innerHTML =
@@ -325,13 +345,13 @@ function init() {
 }
 
 function drawUpdates() {
-    draw()
-    window.requestAnimationFrame(drawUpdates)
+    draw();
+    window.requestAnimationFrame(drawUpdates);
 }
 
 // Loading a texture for a surface
 function LoadTexture() {
-    let texture = gl.createTexture();
+    texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -344,4 +364,30 @@ function LoadTexture() {
         gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         draw();
     }
+}
+
+function webCamVideo(){
+    video = document.createElement('video');
+    video.setAttribute('autoplay', true);
+    window.vid = video;
+    getWebcam();
+    СreateWebCamTexture();
+}
+
+function getWebcam() {
+    navigator.getUserMedia({ video: true, audio: false }, function (stream) {
+        video.srcObject = stream;
+        track = stream.getTracks()[0];
+    }, function (e) {
+        console.error('Rejected!', e);
+    });
+}
+
+function СreateWebCamTexture() {
+    texture_b = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture_b);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 }
