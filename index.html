@@ -9,6 +9,7 @@
     <script src="./shader.gpu"></script>
     <script src="./main.js"></script>
     <script src="./StereoCamera.js"></script>
+    <script src="./Audio.js"></script>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
@@ -37,6 +38,13 @@
                 <label for="convergence_distance">Convergence Distance</label>
                 <input id="convergence_distance" type="range" value="4" min="1" max="5" step="0.25">
                 <span class="value" id="convergence_distance_value">4</span>
+            </div>
+            <div class="audio-control">
+                <audio id="audio" src="https://raw.githubusercontent.com/anndiak/WebGL-public/CGW/Heart_Of_Glass.mp3" controls loop crossorigin="anonymous"></audio>
+                <div class="input">
+                    <span>Enable Low Pass Filter</span>
+                    <input type="checkbox" id="filterCheckbox" checked>
+                </div>
             </div>
         </div>
         <div id="canvas-holder">

@@ -8,6 +8,7 @@ let stereoCamera;               // A stereo camera object for handling stereo re
 let texture;                    // A texture on the top of the surface
 let background, texture_b;      // A background model and its associated texture
 let video, track;               // A video element for webcam input and its associated track
+let sphere;                     // A surface for displaying sound source rotation
 
 function deg2rad(angle) {
     return angle * Math.PI / 180;
@@ -129,7 +130,26 @@ function draw() {
 
     surface.Draw();
 
+    if (panner) {
+        const step = 0.001;
+        const x = Math.sin(step * Date.now());
+        const y = Math.cos(step * Date.now()) / 3;
+        panner.setPosition(x, y, 1);
+    
+        drawMovingSphere(x, y);
+    }
+
     gl.colorMask(true, true, true, true);
+}
+
+function drawMovingSphere(x, y){
+    const translationMatrix = m4.translation(x, y, 1);
+    const modelViewProjectionMatrix = m4.multiply(m4.identity(), translationMatrix);
+
+    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjectionMatrix);
+    sphere.Draw();
+
+    gl.clear(gl.DEPTH_BUFFER_BIT);
 }
 
 function applyBackgroundTexture(){
@@ -254,6 +274,29 @@ function CornucopiaSurfacePoint(r, u, v, openingAngle) {
     return { x: x, y: y, z: z };
 }
 
+function CreateSphereSurface(r = 0.1) {
+    let vertexList = [];
+    let lon = -Math.PI;
+    let lat = -Math.PI * 0.5;
+    while (lon < Math.PI) {
+      while (lat < Math.PI * 0.5) {
+        let v1 = SphereSurfacePoint(r, lon, lat);
+        vertexList.push(v1.x, v1.y, v1.z);
+        lat += 0.05;
+      }
+      lat = -Math.PI * 0.5
+      lon += 0.05;
+    }
+    return vertexList;
+}
+  
+function SphereSurfacePoint(r, u, v) {
+    let x = r * Math.sin(u) * Math.cos(v);
+    let y = r * Math.sin(u) * Math.sin(v);
+    let z = r * Math.cos(u);
+    return { x: x, y: y, z: z };
+}
+
 /* Initialize the WebGL context. Called from init() */
 function initGL() {
     let prog = createProgram(gl, vertexShaderSource, fragmentShaderSource);
@@ -273,6 +316,9 @@ function initGL() {
 
     background = new Model('WebCam');
     background.BufferData([1, 1, 0, -1, -1, 0, -1, 1, 0, -1, -1, 0, 1, 1, 0, 1, -1, 0], [0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1]);
+
+    sphere = new Model('Sphere');
+    sphere.BufferData(CreateSphereSurface(0.2), CreateSphereSurface(0.2));
 
     stereoCamera = new StereoCamera(1, 0.5, 1, 0.8, -10, 50);
 
@@ -332,6 +378,7 @@ function init() {
     try {
         initGL();  // initialize the WebGL graphics context
         webCamVideo();
+        startAudio();
     }
     catch (e) {
         document.getElementById("canvas-holder").innerHTML =
